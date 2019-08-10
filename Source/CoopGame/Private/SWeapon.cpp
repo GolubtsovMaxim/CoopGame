@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SWeapon.h"
+#include "DrawDebugHelpers.h"
 
 
 // Sets default values
@@ -18,6 +19,37 @@ void ASWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void ASWeapon::Fire()
+{
+	// Trace the world from pawn eyes to crosshair location
+
+	AActor* MyOwner = GetOwner(); //the one who shoots
+	if (MyOwner)
+	{
+		FVector EyeLocation;
+		FRotator EyeRotation;
+
+		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+
+		FVector TraceEnd = EyeLocation + (EyeRotation.Vector() * 1000);
+
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(MyOwner);
+		QueryParams.AddIgnoredActor(this);
+		QueryParams.bTraceComplex = true;
+
+
+		FHitResult Hit; //struct for hit data
+		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, ECC_Visibility, QueryParams))
+		{
+			// hit! process damage
+
+		}
+
+		DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Red, false, 1.0f, 0, 1.f);
+	}
 }
 
 // Called every frame

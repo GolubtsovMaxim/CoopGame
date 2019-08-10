@@ -24,6 +24,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Components")
 	USkeletalMeshComponent* MeshComp;
 
+	UFUNCTION(BluePrintCallable, Category = "Weapon")
+	void Fire();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
