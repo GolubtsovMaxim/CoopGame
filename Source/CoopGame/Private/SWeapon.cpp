@@ -2,6 +2,7 @@
 
 #include "SWeapon.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -33,11 +34,12 @@ void ASWeapon::Fire()
 
 		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
-		FVector TraceEnd = EyeLocation + (EyeRotation.Vector() * 1000);
+		FVector ShotDirection = EyeRotation.Vector(); //shot direction for damage apply
+		FVector TraceEnd = EyeLocation + (ShotDirection * 1000);
 
 		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(MyOwner);
-		QueryParams.AddIgnoredActor(this);
+		QueryParams.AddIgnoredActor(MyOwner); //ignore actor for debug tracing
+		QueryParams.AddIgnoredActor(this); //ignore a weapon for debug tracing
 		QueryParams.bTraceComplex = true;
 
 
@@ -45,7 +47,10 @@ void ASWeapon::Fire()
 		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, ECC_Visibility, QueryParams))
 		{
 			// hit! process damage
+			AActor* HitActor = Hit.GetActor();
 
+			UGameplayStatics::ApplyPointDamage(HitActor, 20.0f, ShotDirection, Hit,
+								MyOwner->GetInstigatorController(), this, DamageType);
 		}
 
 		DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Red, false, 1.0f, 0, 1.f);
