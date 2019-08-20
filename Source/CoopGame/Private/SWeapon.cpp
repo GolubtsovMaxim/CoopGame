@@ -13,6 +13,8 @@ ASWeapon::ASWeapon()
 
 	MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("NeshComp"));
 	RootComponent = MeshComp;
+
+	MuzzleSocketName = "MuzzleSocket";
 }
 
 // Called when the game starts or when spawned
@@ -31,7 +33,6 @@ void ASWeapon::Fire()
 	{
 		FVector EyeLocation;
 		FRotator EyeRotation;
-
 		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
 		FVector ShotDirection = EyeRotation.Vector(); //shot direction for damage apply
@@ -51,9 +52,23 @@ void ASWeapon::Fire()
 
 			UGameplayStatics::ApplyPointDamage(HitActor, 20.0f, ShotDirection, Hit,
 								MyOwner->GetInstigatorController(), this, DamageType);
+
+			if (ImpactEffect && Hit.GetActor()->GetName() == "BP_TargetDummy_120")//TO-DO. Check if I am hitting an actor-enemy
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect,
+					Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+
+				auto name = Hit.GetActor()->GetName();
+			}
 		}
 
 		DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Red, false, 1.0f, 0, 1.f);
+
+		//Attachin VFX's for shooting
+		if (MuzzleEffect)
+		{
+			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, MeshComp, MuzzleSocketName);
+		}
 	}
 }
 
