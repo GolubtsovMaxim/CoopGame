@@ -2,6 +2,7 @@
 
 #include "SWeapon.h"
 #include "DrawDebugHelpers.h"
+#include "EnemyActor.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -53,7 +54,7 @@ void ASWeapon::Fire()
 			UGameplayStatics::ApplyPointDamage(HitActor, 20.0f, ShotDirection, Hit,
 								MyOwner->GetInstigatorController(), this, DamageType);
 
-			if (ImpactEffect && Hit.GetActor()->GetName() == "BP_TargetDummy_120")//TO-DO. Check if I am hitting an actor-enemy
+			if (ImpactEffect && Cast<AEnemyActor>(HitActor))//TO-DO. Check if I am hitting an actor-enemy
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect,
 					Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
