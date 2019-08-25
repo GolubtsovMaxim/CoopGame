@@ -4,7 +4,9 @@
 #include "DrawDebugHelpers.h"
 #include "EnemyActor.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "Components/SkeletalMeshComponent.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ASWeapon::ASWeapon()
@@ -16,6 +18,7 @@ ASWeapon::ASWeapon()
 	RootComponent = MeshComp;
 
 	MuzzleSocketName = "MuzzleSocket";
+	TracerTargetName = "Target";
 }
 
 // Called when the game starts or when spawned
@@ -44,6 +47,8 @@ void ASWeapon::Fire()
 		QueryParams.AddIgnoredActor(this); //ignore a weapon for debug tracing
 		QueryParams.bTraceComplex = true;
 
+		// Paricle "Target" parameter 
+		FVector TracerEndPoint = TraceEnd;
 
 		FHitResult Hit; //struct for hit data
 		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, ECC_Visibility, QueryParams))
@@ -54,22 +59,35 @@ void ASWeapon::Fire()
 			UGameplayStatics::ApplyPointDamage(HitActor, 20.0f, ShotDirection, Hit,
 								MyOwner->GetInstigatorController(), this, DamageType);
 
-			if (ImpactEffect && Cast<AEnemyActor>(HitActor))//TO-DO. Check if I am hitting an actor-enemy
+			if (ImpactEffect && Cast<AEnemyActor>(HitActor)->IsValidLowLevel())//TO-DO. Check if I am hitting an actor-enemy
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect,
 					Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
-
-				auto name = Hit.GetActor()->GetName();
 			}
+
+			TracerEndPoint = Hit.ImpactPoint;
 		}
 
 		DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Red, false, 1.0f, 0, 1.f);
 
-		//Attachin VFX's for shooting
+		//Attaching VFX's for shooting
 		if (MuzzleEffect)
 		{
 			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, MeshComp, MuzzleSocketName);
 		}
+
+		
+
+		if (TracerEffect)
+		{
+			FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
+			UParticleSystemComponent* TracerComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, MuzzleLocation);
+			if (TracerComp)
+			{
+				TracerComp->SetVectorParameter(TracerTargetName, TracerEndPoint);
+			}
+		}
+		
 	}
 }
 

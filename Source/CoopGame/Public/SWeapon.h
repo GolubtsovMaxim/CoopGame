@@ -37,11 +37,17 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
 	FName MuzzleSocketName;
 
+	UPROPERTY(VisibleDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
+	FName TracerTargetName;
+
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
 	UParticleSystem* MuzzleEffect;
 
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
 	UParticleSystem* ImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
+	UParticleSystem* TracerEffect;
 
 public:	
 	// Called every frame
