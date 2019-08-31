@@ -29,7 +29,7 @@ protected:
 	USkeletalMeshComponent* MeshComp;
 
 	UFUNCTION(BluePrintCallable, Category = "Weapon")
-	void Fire();
+	virtual void Fire();
 
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
