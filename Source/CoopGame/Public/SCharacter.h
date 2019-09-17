@@ -34,11 +34,25 @@ protected:
 
 	void EndJump();
 
+	void GoADS();
+
+	void EndADS();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* CameraComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComp;
+
+	bool bGoingADS;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	float ADSFOV;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.1, ClampMax = 100))
+	float ADSInterpSpeed;
+
+	float DefaultFOV;
 
 public:	
 	// Called every frame
