@@ -8,6 +8,13 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 
+static float DebugWeaponDrawing = 0;
+FAutoConsoleVariableRef CVARDebugWeaponDrawing (
+	TEXT("COOP.DebugWeapons"), 
+	DebugWeaponDrawing, 
+	TEXT("Draw Debug Lines for Weapons"), 
+	ECVF_Cheat);
+
 // Sets default values
 ASWeapon::ASWeapon()
 {
@@ -43,7 +50,7 @@ void ASWeapon::Fire()
 		FVector TraceEnd = EyeLocation + (ShotDirection * 1000);
 
 		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(MyOwner); //ignore actor for debug tracing
+		QueryParams.AddIgnoredActor(MyOwner); //ignore an actor for debug tracing
 		QueryParams.AddIgnoredActor(this); //ignore a weapon for debug tracing
 		QueryParams.bTraceComplex = true;
 
@@ -68,8 +75,10 @@ void ASWeapon::Fire()
 			TracerEndPoint = Hit.ImpactPoint;
 		}
 
-		DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Red, false, 1.0f, 0, 1.f);
-
+		if (DebugWeaponDrawing > 0)
+		{
+			DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Red, false, 1.0f, 0, 1.0f);
+		}
 		//Attaching VFX's for shooting
 		if (MuzzleEffect)
 		{
