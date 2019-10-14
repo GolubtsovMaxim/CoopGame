@@ -23,13 +23,10 @@ public:
 
 protected:
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	// virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Components")
 	USkeletalMeshComponent* MeshComp;
-
-	UFUNCTION(BluePrintCallable, Category = "Weapon")
-	virtual void Fire();
 
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
@@ -39,6 +36,8 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
 	FName TracerTargetName;
+
+	void PlayFireVFX(FVector TracerEnd);
 
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
 	UParticleSystem* MuzzleEffect;
@@ -51,8 +50,8 @@ protected:
 
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	// virtual void Tick(float DeltaTime) override;
+	UFUNCTION(BluePrintCallable, Category = "Weapon")
+	virtual void Fire();
 
-	
-	
 };
