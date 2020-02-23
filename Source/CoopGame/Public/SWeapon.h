@@ -48,6 +48,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
 	UParticleSystem* TracerEffect;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<UCameraShake> FireCameraShake;
+
 public:	
 	// Called every frame
 	// virtual void Tick(float DeltaTime) override;

@@ -87,11 +87,20 @@ void ASWeapon::Fire()
 
 void ASWeapon::PlayFireVFX(FVector TracerEnd)
 {
+	APawn* pCurrentOwner = Cast<APawn>(GetOwner());
+	if (pCurrentOwner != nullptr)
+	{
+		APlayerController* pPlayerController = Cast<APlayerController>(pCurrentOwner->GetController());
+		if (pPlayerController != nullptr)
+		{
+			pPlayerController->ClientPlayCameraShake(FireCameraShake);
+		}
+	}
+
 	if (MuzzleEffect)
 	{
 		UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, MeshComp, MuzzleSocketName);
 	}
-
 
 	if (TracerEffect)
 	{
@@ -102,6 +111,7 @@ void ASWeapon::PlayFireVFX(FVector TracerEnd)
 			TracerComp->SetVectorParameter(TracerTargetName, TracerEnd);
 		}
 	}
+
 }
 
 // Called every frame
