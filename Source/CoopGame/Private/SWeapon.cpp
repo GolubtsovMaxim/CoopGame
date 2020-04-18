@@ -7,6 +7,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "CoopGame.h"
 
 static float DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef CVARDebugWeaponDrawing (
@@ -53,6 +55,7 @@ void ASWeapon::Fire()
 		QueryParams.AddIgnoredActor(MyOwner); //ignore an actor for debug tracing
 		QueryParams.AddIgnoredActor(this); //ignore a weapon for debug tracing
 		QueryParams.bTraceComplex = true;
+		QueryParams.bReturnPhysicalMaterial = true;
 
 		// Paricle "Target" parameter 
 		FVector TracerEndPoint = TraceEnd;
@@ -66,9 +69,24 @@ void ASWeapon::Fire()
 			UGameplayStatics::ApplyPointDamage(HitActor, 20.0f, ShotDirection, Hit,
 								MyOwner->GetInstigatorController(), this, DamageType);
 
-			if (ImpactEffect && Cast<AEnemyActor>(HitActor)->IsValidLowLevel())//TO-DO. Check if I am hitting an actor-enemy
+			EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get()); //careful. <- weak pointer
+
+			UParticleSystem* SelectedEffect = nullptr;
+
+			switch (SurfaceType)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect,
+			case SURFACE_FLESHDEFAULT:
+			case SURFACE_FLESHVULNERABLE:
+				SelectedEffect = FleshImpactEffect;
+				break;
+			default:
+				SelectedEffect = DefaultImpactEffect;
+				break;
+			}
+
+			if (SelectedEffect/* && Cast<AEnemyActor>(HitActor)->IsValidLowLevel()*/)//TO-DO. Check if I am hitting an actor-enemy
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect,
 					Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 			}
 
@@ -120,4 +138,3 @@ void ASWeapon::PlayFireVFX(FVector TracerEnd)
 	Super::Tick(DeltaTime);
 
 }*/ //nothing to tick
-

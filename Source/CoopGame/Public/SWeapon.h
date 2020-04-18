@@ -7,7 +7,6 @@
 #include "Particles/ParticleSystem.h"
 #include "SWeapon.generated.h"
 
-
 class USkeletalMeshComponent;
 class UDamageType;
 class UParticleSystem;
@@ -43,7 +42,10 @@ protected:
 	UParticleSystem* MuzzleEffect;
 
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
-	UParticleSystem* ImpactEffect;
+	UParticleSystem* DefaultImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
+	UParticleSystem* FleshImpactEffect;
 
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
 	UParticleSystem* TracerEffect;
