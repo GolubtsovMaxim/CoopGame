@@ -16,7 +16,7 @@ class COOPGAME_API ASGrenadeLauncher : public ASWeapon
 	
 protected:
 
-	virtual void Fire() override;
+	void Fire();
 	
 	UPROPERTY(EditDefaultsOnly, Category = "GrenadeLauncherWeapon")
 	TSubclassOf<AActor> ProjectileClass;

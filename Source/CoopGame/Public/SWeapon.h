@@ -22,7 +22,7 @@ public:
 
 protected:
 	// Called when the game starts or when spawned
-	// virtual void BeginPlay() override;
+	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Components")
 	USkeletalMeshComponent* MeshComp;
@@ -53,10 +53,29 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UCameraShake> FireCameraShake;
 
+	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
+	float mBaseDamage;
+
+	void Fire();
+
+	FTimerHandle TimerHandle_TimeBetweenShot;
+
+	float LastFireTime;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float RateOfFire;
+
+	//
+	float TimeBetweenShots;
+
 public:	
 	// Called every frame
 	// virtual void Tick(float DeltaTime) override;
-	UFUNCTION(BluePrintCallable, Category = "Weapon")
-	virtual void Fire();
+	/*UFUNCTION(BluePrintCallable, Category = "Weapon")
+	virtual */
+
+	void StartFire();
+
+	void StopFire();
 
 };
