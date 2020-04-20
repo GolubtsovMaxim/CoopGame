@@ -55,7 +55,7 @@ protected:
 
 	float DefaultFOV;
 	
-	ASWeapon* CurrentWeapon;
+	class ASWeapon* CurrentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<ASWeapon> StarterWeaponClass;
@@ -66,6 +66,10 @@ protected:
 	void StartFire();
 
 	void StopFire();
+
+	bool IsFiring = false;
+
+	float RecoilValue = 0.f;
 
 public:	
 	// Called every frame

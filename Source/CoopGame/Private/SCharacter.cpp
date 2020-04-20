@@ -48,6 +48,8 @@ void ASCharacter::BeginPlay()
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 	}
+
+	RecoilValue = CurrentWeapon->WeaponRecoilValue;
 }
 
 void ASCharacter::MoveForward(float value)
@@ -95,6 +97,7 @@ void ASCharacter::StartFire()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->StartFire();
+		IsFiring = true;
 	}
 }
 
@@ -103,6 +106,8 @@ void ASCharacter::StopFire()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->StopFire();
+		IsFiring = false;
+		AddControllerPitchInput(RecoilValue);
 	}
 }
 
@@ -116,6 +121,11 @@ void ASCharacter::Tick(float DeltaTime)
 	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ADSInterpSpeed);
 
 	CameraComp->SetFieldOfView(NewFOV);
+
+	if (IsFiring)
+	{
+		AddControllerPitchInput(-RecoilValue);
+	}
 }
 
 // Called to bind functionality to input

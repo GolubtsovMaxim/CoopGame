@@ -64,11 +64,13 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float RateOfFire;
-
 	//
 	float TimeBetweenShots;
 
 public:	
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float WeaponRecoilValue;
 	// Called every frame
 	// virtual void Tick(float DeltaTime) override;
 	/*UFUNCTION(BluePrintCallable, Category = "Weapon")
