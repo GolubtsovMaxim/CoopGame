@@ -57,6 +57,8 @@ protected:
 	
 	class ASWeapon* CurrentWeapon;
 
+	class UHealthComponent* HealthComp;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<ASWeapon> StarterWeaponClass;
 
@@ -66,6 +68,12 @@ protected:
 	void StartFire();
 
 	void StopFire();
+
+	UFUNCTION()
+	void OnHealthChanged(UHealthComponent* HealhtComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	bool IsDead;
 
 	bool IsFiring = false;
 
@@ -78,5 +86,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual FVector GetPawnViewLocation() const override;
+	virtual FVector GetPawnViewLocation() const override;	
 };
