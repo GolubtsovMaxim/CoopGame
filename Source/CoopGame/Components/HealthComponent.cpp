@@ -7,7 +7,7 @@
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
 {
-	mHealthPoints = 100.f;
+	mDefaultHealth = 100.f;
 }
 
 
