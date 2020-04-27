@@ -55,6 +55,7 @@ protected:
 
 	float DefaultFOV;
 	
+	UPROPERTY(Replicated)
 	class ASWeapon* CurrentWeapon;
 
 	class UHealthComponent* HealthComp;
@@ -68,6 +69,8 @@ protected:
 	void StartFire();
 
 	void StopFire();
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	UFUNCTION()
 	void OnHealthChanged(UHealthComponent* OwningHealhtComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

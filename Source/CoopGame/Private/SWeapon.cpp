@@ -1,15 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "CoopGame.h"
 #include "SWeapon.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "EnemyActor.h"
 #include "Kismet/GameplayStatics.h"
-#include "Components/SkeletalMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "TimerManager.h"
-#include "CoopGame.h"
 
 static float DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef CVARDebugWeaponDrawing (
@@ -33,6 +34,11 @@ ASWeapon::ASWeapon()
 	mBaseDamage = 20.0f;
 
 	RateOfFire = 600;
+
+	SetReplicates(true);
+	
+	NetUpdateFrequency = 66.0f;
+	MinNetUpdateFrequency = 33.0f;
 }
 
 // Called when the game starts or when spawned
@@ -45,6 +51,10 @@ ASWeapon::ASWeapon()
 void ASWeapon::Fire()
 {
 	// Trace the world from pawn eyes to crosshair location
+	if (Role < ROLE_Authority)
+	{
+		ServerFire();
+	}
 
 	AActor* MyOwner = GetOwner(); //the one who shoots
 	if (MyOwner)
@@ -65,6 +75,8 @@ void ASWeapon::Fire()
 		// Paricle "Target" parameter 
 		FVector TracerEndPoint = TraceEnd;
 
+		EPhysicalSurface SurfaceType = SurfaceType_Default;
+
 		FHitResult Hit; //struct for hit data
 		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams))
 		{
@@ -82,26 +94,11 @@ void ASWeapon::Fire()
 			UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit,
 								MyOwner->GetInstigatorController(), this, DamageType);
 
-			UParticleSystem* SelectedEffect = nullptr;
-
-			switch (SurfaceType)
-			{
-			case SURFACE_FLESHDEFAULT:
-			case SURFACE_FLESHVULNERABLE:
-				SelectedEffect = FleshImpactEffect;
-				break;
-			default:
-				SelectedEffect = DefaultImpactEffect;
-				break;
-			}
-
-			if (SelectedEffect/* && Cast<AEnemyActor>(HitActor)->IsValidLowLevel()*/)//TO-DO. Check if I am hitting an actor-enemy
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect,
-					Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
-			}
+			PlayImpactEffects(SurfaceType, Hit.ImpactPoint);
 
 			TracerEndPoint = Hit.ImpactPoint;
+
+			HitScanTrace.SurfaceType = SurfaceType;
 		}
 
 		if (DebugWeaponDrawing > 0)
@@ -110,9 +107,34 @@ void ASWeapon::Fire()
 		}
 		//Attaching VFX's for shooting
 		PlayFireVFX(TracerEndPoint);
+
+		if (Role == ROLE_Authority)
+		{
+			HitScanTrace.TraceTo = TracerEndPoint;
+			HitScanTrace.SurfaceType = SurfaceType;
+			HitScanTrace.BurstCounter++;
+		}
 		
 		LastFireTime = GetWorld()->TimeSeconds;
 	}
+}
+
+void ASWeapon::ServerFire_Implementation()
+{
+	Fire();
+}
+
+bool ASWeapon::ServerFire_Validate()
+{
+	return true;
+}
+
+void ASWeapon::OnRep_HitScanTrace()
+{
+	// Play Cosmetic FX
+	PlayFireVFX(HitScanTrace.TraceTo);
+
+	PlayImpactEffects(HitScanTrace.SurfaceType, HitScanTrace.TraceTo);
 }
 
 void ASWeapon::StartFire()
@@ -162,6 +184,39 @@ void ASWeapon::PlayFireVFX(FVector TracerEnd)
 		}
 	}
 
+}
+
+void ASWeapon::PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint)
+{
+	UParticleSystem* SelectedEffect = nullptr;
+
+	switch (SurfaceType)
+	{
+	case SURFACE_FLESHDEFAULT:
+	case SURFACE_FLESHVULNERABLE:
+		SelectedEffect = FleshImpactEffect;
+		break;
+	default:
+		SelectedEffect = DefaultImpactEffect;
+		break;
+	}
+
+	if (SelectedEffect/* && Cast<AEnemyActor>(HitActor)->IsValidLowLevel()*/)//TO-DO. Check if I am hitting an actor-enemy
+	{
+		FVector MuzzleLoc = MeshComp->GetSocketLocation(MuzzleSocketName);
+		FVector ShotDirection = ImpactPoint - MuzzleLoc;
+		ShotDirection.Normalize();
+
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect,
+			ImpactPoint, ShotDirection.Rotation());
+	}
+}
+
+void ASWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ASWeapon, HitScanTrace, COND_SkipOwner);
 }
 
 // Called every frame
