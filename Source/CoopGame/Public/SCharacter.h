@@ -58,6 +58,7 @@ protected:
 	UPROPERTY(Replicated)
 	class ASWeapon* CurrentWeapon;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
 	class UHealthComponent* HealthComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
@@ -75,7 +76,7 @@ protected:
 	UFUNCTION()
 	void OnHealthChanged(UHealthComponent* OwningHealhtComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Player")
 	bool IsDead;
 
 	bool IsFiring = false;

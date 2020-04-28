@@ -21,10 +21,10 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BluePrintReadOnly, Category = "HealthComponent")
+	UPROPERTY(Replicated, BluePrintReadOnly, Category = "HealthComponent")
 	float mHealthPoints;
 
-	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = "HealthComponent")
+	UPROPERTY(Replicated, EditAnywhere, BluePrintReadWrite, Category = "HealthComponent")
 	float mDefaultHealth;
 
 	UFUNCTION()
