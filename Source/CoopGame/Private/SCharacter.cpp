@@ -60,7 +60,7 @@ void ASCharacter::BeginPlay()
 			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 		}
 
-		RecoilValue = CurrentWeapon->WeaponRecoilValue;
+		//RecoilValue = CurrentWeapon->WeaponRecoilValue;
 	}
 }
 
@@ -152,7 +152,7 @@ void ASCharacter::Tick(float DeltaTime)
 
 	if (IsFiring)
 	{
-		AddControllerPitchInput(-RecoilValue);
+		AddControllerPitchInput(-(CurrentWeapon->WeaponRecoilValue));
 	}
 }
 
