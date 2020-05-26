@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TrackerBot.h"
+#include "Components/HealthComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "AI/Navigation/NavigationSystem.h"
@@ -17,8 +18,12 @@ ATrackerBot::ATrackerBot()
 	MeshComp->SetCanEverAffectNavigation(false);
 	MeshComp->SetSimulatePhysics(true);
 	RootComponent = MeshComp;
+
+	BotHealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComp"));
+	BotHealthComponent->OnHealthChanged.AddDynamic(this, &ATrackerBot::HandleTakeDamage);
+
 	bUseVeloctiyChange = false;
-	MovementForce = 1000;
+	MovementForce = 1000.f;
 	RequiredDistanceToTarget = 100;
 }
 
@@ -32,7 +37,7 @@ void ATrackerBot::BeginPlay()
 
 FVector ATrackerBot::GetNextPathPoint()
 {
-	ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0);
+	ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0); //get pawn
 
 	UNavigationPath* NavPath = UNavigationSystem::FindPathToActorSynchronously(this, GetActorLocation(), PlayerPawn);
 
@@ -43,6 +48,15 @@ FVector ATrackerBot::GetNextPathPoint()
 	}
 
 	return GetActorLocation();
+}
+
+void ATrackerBot::HandleTakeDamage(UHealthComponent* HealhtComp, float Health, float HealthDelta,
+	const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	//BOOM on zero HP
+	//@TODO: Pulse the material on hit
+
+	UE_LOG(LogTemp, Log, TEXT("Health %s of %s"), *FString::SanitizeFloat(Health), *GetName());
 }
 
 // Called every frame

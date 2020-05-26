@@ -22,6 +22,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* MeshComp;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+	class UHealthComponent* BotHealthComponent;
+
 	FVector GetNextPathPoint();
 
 	FVector NextPathPoint;
@@ -34,6 +37,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float RequiredDistanceToTarget;
+
+	UFUNCTION()
+	void HandleTakeDamage(UHealthComponent* HealhtComp, float Health, float HealthDelta,
+		const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 public:	
 	// Called every frame
