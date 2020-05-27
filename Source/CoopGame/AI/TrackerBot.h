@@ -42,6 +42,8 @@ protected:
 	void HandleTakeDamage(UHealthComponent* HealhtComp, float Health, float HealthDelta,
 		const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
+	class UMaterialInstanceDynamic* MatInst;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
