@@ -5,6 +5,7 @@
 #include "AI/Navigation/NavigationPath.h"
 #include "Components/HealthComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -26,6 +27,9 @@ ATrackerBot::ATrackerBot()
 	bUseVeloctiyChange = false;
 	MovementForce = 1000.f;
 	RequiredDistanceToTarget = 100;
+
+	ExplosionDamage = 100;
+	ExplosionRadius = 40;
 }
 
 // Called when the game starts or when spawned
@@ -65,6 +69,33 @@ void ATrackerBot::HandleTakeDamage(UHealthComponent* HealhtComp, float Health, f
 	}
 	
 	UE_LOG(LogTemp, Log, TEXT("Health %s of %s"), *FString::SanitizeFloat(Health), *GetName());
+
+	if (Health <= 0.0f)
+	{
+		SelfDestruct();
+	}
+}
+
+void ATrackerBot::SelfDestruct()
+{
+	if (IsExploded)
+	{
+		return;
+	}
+
+	IsExploded = true;
+
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
+
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(this);
+
+	UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, 
+		IgnoredActors, this, GetInstigatorController(), true);
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.0f, 0, 1.0f);
+
+	Destroy();
 }
 
 // Called every frame
