@@ -5,10 +5,12 @@
 #include "AI/Navigation/NavigationPath.h"
 #include "Components/HealthComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "SCharacter.h"
 
 // Sets default values
 ATrackerBot::ATrackerBot()
@@ -23,6 +25,13 @@ ATrackerBot::ATrackerBot()
 
 	BotHealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComp"));
 	BotHealthComponent->OnHealthChanged.AddDynamic(this, &ATrackerBot::HandleTakeDamage);
+
+	BotSphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	BotSphereComp->SetSphereRadius(200);
+	BotSphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	BotSphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	BotSphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	BotSphereComp->SetupAttachment(RootComponent);
 
 	bUseVeloctiyChange = false;
 	MovementForce = 1000.f;
@@ -98,6 +107,11 @@ void ATrackerBot::SelfDestruct()
 	Destroy();
 }
 
+void ATrackerBot::DamageSelf()
+{
+	UGameplayStatics::ApplyDamage(this, 20, GetInstigatorController(), this, nullptr);
+}
+
 // Called every frame
 void ATrackerBot::Tick(float DeltaTime)
 {
@@ -117,5 +131,22 @@ void ATrackerBot::Tick(float DeltaTime)
 		ForceDirection *= MovementForce;
 
 		MeshComp->AddForce(ForceDirection, NAME_None, bUseVeloctiyChange);
+	}
+}
+
+void ATrackerBot::NotifyActorBeginOverlap(AActor * OtherActor)
+{
+	if (!bStartedSelfDestruction)
+	{
+		ASCharacter* PlayerPawn = Cast<ASCharacter>(OtherActor);
+		if (PlayerPawn)
+		{
+			//if overlapped with player
+
+			//Start self destruct as we get in radius of player
+			GetWorldTimerManager().SetTimer(TimerHandleSelfDamage, this, &ATrackerBot::DamageSelf, 0.5f, true, 0.0f);
+
+			bStartedSelfDestruction = true;
+		}
 	}
 }

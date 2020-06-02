@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Engine/EngineTypes.h"
 #include "TrackerBot.generated.h"
 
 UCLASS()
@@ -24,6 +25,9 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	class UHealthComponent* BotHealthComponent;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+	class USphereComponent* BotSphereComp;
 
 	FVector GetNextPathPoint();
 
@@ -46,6 +50,8 @@ protected:
 
 	void SelfDestruct();
 
+	bool bStartedSelfDestruction;
+
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	UParticleSystem* ExplosionEffect;
 
@@ -57,8 +63,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float ExplosionDamage;
 
+	FTimerHandle TimerHandleSelfDamage; //for NotifyActorBeginOverlap
+
+	void DamageSelf();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 };
