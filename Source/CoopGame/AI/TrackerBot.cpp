@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "SCharacter.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 ATrackerBot::ATrackerBot()
@@ -39,6 +40,8 @@ ATrackerBot::ATrackerBot()
 
 	ExplosionDamage = 100;
 	ExplosionRadius = 40;
+
+	SelfDamageInterval = 0.25f;
 }
 
 // Called when the game starts or when spawned
@@ -104,6 +107,8 @@ void ATrackerBot::SelfDestruct()
 
 	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.0f, 0, 1.0f);
 
+	UGameplayStatics::PlaySoundAtLocation(this, ExplodeSound, GetActorLocation());
+
 	Destroy();
 }
 
@@ -144,9 +149,11 @@ void ATrackerBot::NotifyActorBeginOverlap(AActor * OtherActor)
 			//if overlapped with player
 
 			//Start self destruct as we get in radius of player
-			GetWorldTimerManager().SetTimer(TimerHandleSelfDamage, this, &ATrackerBot::DamageSelf, 0.5f, true, 0.0f);
+			GetWorldTimerManager().SetTimer(TimerHandleSelfDamage, this, &ATrackerBot::DamageSelf, SelfDamageInterval, true, 0.0f);
 
 			bStartedSelfDestruction = true;
+
+			UGameplayStatics::SpawnSoundAttached(SelfDestructSound, RootComponent);
 		}
 	}
 }
