@@ -21,11 +21,14 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(Replicated, BluePrintReadOnly, Category = "HealthComponent")
+	UPROPERTY(ReplicatedUsing=OnRep_Health, BluePrintReadOnly, Category = "HealthComponent")
 	float mHealthPoints;
 
 	UPROPERTY(Replicated, EditAnywhere, BluePrintReadWrite, Category = "HealthComponent")
 	float mDefaultHealth;
+
+	UFUNCTION()
+	void OnRep_Health(float OldHealth);
 
 	UFUNCTION()
 	void HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
