@@ -1,9 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PickupActor.h"
+#include "PowerUpActor.h"
 
 #include "Components/DecalComponent.h"
 #include "Components/SphereComponent.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 
 // Sets default values
@@ -23,6 +26,8 @@ APickupActor::APickupActor()
 void APickupActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Respawn();
 	
 }
 
@@ -30,5 +35,27 @@ void APickupActor::NotifyActorBeginOverlap(AActor * OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
+	if (PowerUpInstance)
+	{
+		PowerUpInstance->ActivatePowerUp();
+		PowerUpInstance = nullptr;
 
+		GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &APickupActor::Respawn, CooldownDuration);
+	}
+}
+
+void APickupActor::Respawn()
+{
+	if (PowerUpClass == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PowerUpClass is nullptr in %s."), *GetName());
+		return;
+	}
+	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	PowerUpInstance = GetWorld()->SpawnActor<APowerUpActor>(PowerUpClass, GetTransform(), SpawnParams);
+
+	
 }

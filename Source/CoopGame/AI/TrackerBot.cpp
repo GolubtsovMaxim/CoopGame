@@ -161,7 +161,7 @@ void ATrackerBot::NotifyActorBeginOverlap(AActor * OtherActor)
 		ASCharacter* PlayerPawn = Cast<ASCharacter>(OtherActor);
 		if (PlayerPawn)
 		{
-			if (Role = ROLE_Authority)
+			if (Role == ROLE_Authority)
 			{
 				GetWorldTimerManager().SetTimer(TimerHandleSelfDamage, this, &ATrackerBot::DamageSelf, SelfDamageInterval, true, 0.0f);
 			}
