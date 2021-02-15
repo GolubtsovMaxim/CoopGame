@@ -25,7 +25,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UDecalComponent* PickupDecalComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "PickUpActor")
+	UPROPERTY(EditInstanceOnly, Category = "PickUpActor")
 	TSubclassOf<APowerUpActor> PowerUpClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "PickUpActor")

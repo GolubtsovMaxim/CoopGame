@@ -60,3 +60,17 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(UHealthComponent, mHealthPoints);
 }
+
+void UHealthComponent::Heal(float HealAmount)
+{
+	if (HealAmount <= 0.0f || mHealthPoints <= 0.0f)
+	{
+		return;
+	}
+
+	mHealthPoints = FMath::Clamp(mHealthPoints + HealAmount, 0.0f, mDefaultHealth);
+
+	UE_LOG(LogTemp, Log, TEXT("Health Changed: %s + (%s)"), *FString::SanitizeFloat(mHealthPoints), *FString::SanitizeFloat(HealAmount));
+
+	OnHealthChanged.Broadcast(this, mHealthPoints, -HealAmount, nullptr, nullptr, nullptr);
+}
