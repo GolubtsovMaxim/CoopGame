@@ -20,6 +20,8 @@ APickupActor::APickupActor()
 	PickupDecalComp->SetRelativeRotation(FRotator(90, 0.0f, 0.0f));
 	PickupDecalComp->DecalSize = FVector(64, 75, 75);
 	PickupDecalComp->SetupAttachment(RootComponent);
+
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned
@@ -27,17 +29,19 @@ void APickupActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Respawn();
-	
+	if (Role == ROLE_Authority)
+	{
+		Respawn();
+	}
 }
 
 void APickupActor::NotifyActorBeginOverlap(AActor * OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (PowerUpInstance)
+	if (Role == ROLE_Authority && PowerUpInstance)
 	{
-		PowerUpInstance->ActivatePowerUp();
+		PowerUpInstance->ActivatePowerUp(OtherActor);
 		PowerUpInstance = nullptr;
 
 		GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &APickupActor::Respawn, CooldownDuration);
