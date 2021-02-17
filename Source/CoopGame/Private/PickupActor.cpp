@@ -7,6 +7,7 @@
 #include "Components/SphereComponent.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "SCharacter.h"
 
 
 // Sets default values
@@ -39,8 +40,9 @@ void APickupActor::NotifyActorBeginOverlap(AActor * OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (Role == ROLE_Authority && PowerUpInstance)
+	if (Role == ROLE_Authority && PowerUpInstance && OtherActor->IsA<ASCharacter>())
 	{
+		auto test = OtherActor->GetActorClass();
 		PowerUpInstance->ActivatePowerUp(OtherActor);
 		PowerUpInstance = nullptr;
 
