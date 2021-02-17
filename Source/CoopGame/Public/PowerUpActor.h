@@ -55,7 +55,4 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Powerups")
 	void OnExpired();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Powerups")
-	void OnExpiredExactActor(AActor* OtherActor);
-
 };
