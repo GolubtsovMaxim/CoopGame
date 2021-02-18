@@ -25,6 +25,29 @@ void ASGameMode::StartWave()
 	GetWorldTimerManager().SetTimer(TimerHandle_BotSpawner, this, &ASGameMode::SpawnBotTimerElapsed, 1.0f, true, 0.0f);
 }
 
+void ASGameMode::CheckAnyPlayerAlive()
+{
+	for (TActorIterator<APawn> Itr(GetWorld()); Itr; ++Itr)
+	{
+		if (Itr->GetController() != nullptr && Itr->GetController()->GetPawn())
+		{
+			APawn* AlivePawn = Itr->GetController()->GetPawn();
+			UHealthComponent* HealthComp = Cast<UHealthComponent>(AlivePawn->GetComponentByClass(UHealthComponent::StaticClass()));
+			if (ensure(HealthComp) && HealthComp->GetHealth() > 0.0f)
+			{
+				return;
+			}
+		}
+	}
+
+	GameOver();
+}
+
+void ASGameMode::GameOver()
+{
+	EndWave();
+}
+
 void ASGameMode::StartPlay()
 {
 	Super::StartPlay();
@@ -36,6 +59,7 @@ void ASGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	CheckWaveState();
+	CheckAnyPlayerAlive();
 }
 
 void ASGameMode::SpawnBotTimerElapsed()

@@ -43,6 +43,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
 	float TimeBetweenWaves;
 
+	void CheckAnyPlayerAlive();
+
+	void GameOver();
+
 public:
 
 	virtual  void StartPlay() override;
