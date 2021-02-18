@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "SGameState.h"
 #include "SGameMode.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorKilled, AActor*, VictimActor, AActor*, DeathCauser, AController*, KillerActor );
 
 /**
  * 
@@ -47,6 +50,8 @@ protected:
 
 	void GameOver();
 
+	void SetWaveState(EWaveState NewState);
+
 public:
 
 	virtual  void StartPlay() override;
@@ -54,4 +59,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	ASGameMode();
+
+	UPROPERTY(BlueprintAssignable, Category = "GameMode")
+	FOnActorKilled OnActorKilled;
 };
