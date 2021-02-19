@@ -64,7 +64,7 @@ void ASWeapon::Fire()
 		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
 		FVector ShotDirection = EyeRotation.Vector(); //shot direction for damage apply
-		FVector TraceEnd = EyeLocation + (ShotDirection * 1000);
+		FVector TraceEnd = EyeLocation + (ShotDirection * 10000000);
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(MyOwner); //ignore an actor for debug tracing
