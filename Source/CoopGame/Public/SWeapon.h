@@ -69,7 +69,7 @@ protected:
 	UParticleSystem* TracerEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<UCameraShake> FireCameraShake;
+	TSubclassOf<class UCameraShake> FireCameraShake;
 
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly, Category = "Weapon")
 	float mBaseDamage;
@@ -85,6 +85,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float RateOfFire;
+
+	//BulletSpread in Degrees
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon", meta = (ClampMin = 0.0f))
+	float BulletSpread;
 	//
 	float TimeBetweenShots;
 
@@ -96,8 +100,8 @@ protected:
 
 public:	
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	float WeaponRecoilValue;
+	/*UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float WeaponRecoilValue;*/
 	// Called every frame
 	// virtual void Tick(float DeltaTime) override;
 	/*UFUNCTION(BluePrintCallable, Category = "Weapon")

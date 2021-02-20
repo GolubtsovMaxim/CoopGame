@@ -77,7 +77,7 @@ protected:
 
 	bool IsFiring = false;
 
-	float RecoilValue = 0.f;
+	//float RecoilValue = 0.f;
 
 public:	
 	// Called every frame

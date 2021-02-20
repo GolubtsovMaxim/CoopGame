@@ -119,7 +119,7 @@ void ASCharacter::StopFire()
 	{
 		CurrentWeapon->StopFire();
 		IsFiring = false;
-		AddControllerPitchInput(RecoilValue);
+		//AddControllerPitchInput(RecoilValue);
 	}
 }
 
@@ -150,10 +150,10 @@ void ASCharacter::Tick(float DeltaTime)
 
 	CameraComp->SetFieldOfView(NewFOV);
 
-	if (IsFiring)
+	/*if (IsFiring)
 	{
 		AddControllerPitchInput(-(CurrentWeapon->WeaponRecoilValue));
-	}
+	}*/
 }
 
 // Called to bind functionality to input
