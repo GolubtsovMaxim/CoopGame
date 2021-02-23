@@ -21,6 +21,9 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HealthComponent")
+	uint8 TeamAffiliation;
+
 	bool bIsDead;
 
 	UPROPERTY(ReplicatedUsing=OnRep_Health, BluePrintReadOnly, Category = "HealthComponent")
@@ -39,9 +42,14 @@ public:
 
 	float GetHealth() const;
 
+	uint8 GetTeamAffiliation() const;
+
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnHealthChangedDelegate OnHealthChanged;
 
 	UFUNCTION(BlueprintCallable, Category = "HealthComponent")
 	void Heal(float HealAmount);
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "HealthComponent")
+	static bool IsFriendly(AActor* ActorOne, AActor* ActorTwo);
 };

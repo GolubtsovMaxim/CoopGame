@@ -13,6 +13,8 @@ UHealthComponent::UHealthComponent()
 {
 	mDefaultHealth = 100.f;
 	bIsDead = false;
+
+	TeamAffiliation = 255;
 	
 	SetIsReplicated(true);
 }
@@ -46,7 +48,13 @@ void UHealthComponent::OnRep_Health(float OldHealth)
 
 void UHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
+	//auto test = DamageCauser->GetOwner();
 	if (Damage <= 0.f || bIsDead)
+	{
+		return;
+	}
+
+	if ((DamageCauser != DamagedActor) && IsFriendly(DamagedActor, DamageCauser))
 	{
 		return;
 	}
@@ -75,6 +83,11 @@ float UHealthComponent::GetHealth() const
 	return mHealthPoints;
 }
 
+uint8 UHealthComponent::GetTeamAffiliation() const
+{
+	return TeamAffiliation;
+}
+
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -94,4 +107,22 @@ void UHealthComponent::Heal(float HealAmount)
 	UE_LOG(LogTemp, Log, TEXT("Health Changed: %s + (%s)"), *FString::SanitizeFloat(mHealthPoints), *FString::SanitizeFloat(HealAmount));
 
 	OnHealthChanged.Broadcast(this, mHealthPoints, -HealAmount, nullptr, nullptr, nullptr);
+}
+
+bool UHealthComponent::IsFriendly(AActor* ActorOne, AActor* ActorTwo)
+{
+	if (ActorOne == nullptr || ActorTwo == nullptr)
+	{
+		return true;
+	}
+
+	UHealthComponent* HC_A = Cast<UHealthComponent>(ActorOne->GetComponentByClass(UHealthComponent::StaticClass()));
+	UHealthComponent* HC_B = Cast<UHealthComponent>(ActorTwo->GetComponentByClass(UHealthComponent::StaticClass()));
+
+	if (HC_A == nullptr || HC_B == nullptr)
+	{
+		return true;
+	}
+
+	return HC_A->TeamAffiliation == HC_B->TeamAffiliation;
 }
