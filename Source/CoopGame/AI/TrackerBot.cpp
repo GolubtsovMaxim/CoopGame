@@ -7,10 +7,12 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "DrawDebugHelpers.h"
+#include "EngineUtils.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "SCharacter.h"
+#include "TimerManager.h"
 #include "Sound/SoundCue.h"
 
 // Sets default values
@@ -57,16 +59,47 @@ void ATrackerBot::BeginPlay()
 
 FVector ATrackerBot::GetNextPathPoint()
 {
-	ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0); //get pawn
-
-	UNavigationPath* NavPath = UNavigationSystem::FindPathToActorSynchronously(this, GetActorLocation(), PlayerPawn);
-
-	if (NavPath && NavPath->PathPoints.Num() > 1)
+	//ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0); //get pawn
+	AActor* BestTarget = nullptr;
+	float NearestTargetDistance = FLT_MAX;
+	
+	for (TActorIterator<APawn> Itr(GetWorld()); Itr; ++Itr)
 	{
-		//next point to move on
-		return NavPath->PathPoints[1];
+		APawn* IterPawn = *Itr;
+		if (IterPawn == nullptr || UHealthComponent::IsFriendly(IterPawn, this))
+		{
+			continue;
+		}
+
+		UHealthComponent* TestPawnHealthComp = Cast<UHealthComponent>(IterPawn->GetComponentByClass(UHealthComponent::StaticClass()));
+
+		if (TestPawnHealthComp && TestPawnHealthComp->GetHealth() > 0.0f)
+		{
+			const float Distance = IterPawn->GetActorLocation().Size() - GetActorLocation().Size();
+			if (NearestTargetDistance > Distance)
+			{
+				BestTarget = IterPawn;
+				NearestTargetDistance = Distance;
+			}
+			break;
+		}
 	}
 
+	if (BestTarget)
+	{
+		UNavigationPath* NavPath = UNavigationSystem::FindPathToActorSynchronously(this, GetActorLocation(), BestTarget);
+
+		GetWorldTimerManager().ClearTimer(TimerHandle_RefreshPath);
+
+		GetWorldTimerManager().SetTimer(TimerHandle_RefreshPath, this, &ATrackerBot::RefreshPath, 5.0f, false);
+
+		if (NavPath && NavPath->PathPoints.Num() > 1)
+		{
+			//next point to move on
+			return NavPath->PathPoints[1];
+		}
+	}
+	
 	return GetActorLocation();
 }
 
@@ -159,7 +192,7 @@ void ATrackerBot::NotifyActorBeginOverlap(AActor * OtherActor)
 	if (!bStartedSelfDestruction && !IsExploded)
 	{
 		ASCharacter* PlayerPawn = Cast<ASCharacter>(OtherActor);
-		if (PlayerPawn)
+		if (PlayerPawn && !UHealthComponent::IsFriendly(OtherActor, this))
 		{
 			if (Role == ROLE_Authority)
 			{
@@ -171,4 +204,9 @@ void ATrackerBot::NotifyActorBeginOverlap(AActor * OtherActor)
 			//Start self destruct as we get in radius of player
 		}
 	}
+}
+
+void ATrackerBot::RefreshPath()
+{
+	NextPathPoint = GetNextPathPoint();
 }
